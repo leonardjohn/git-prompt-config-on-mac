@@ -27,15 +27,27 @@ https://askubuntu.com/questions/159558/change-the-device-name-in-the-details-win
 
 # git-prompt-config-on-mac
 1. How to enable git completion when press "tab" key to complete the full command?
+   Download the corresponding tag according to the git version you installed on your local:
+   [Git Tags/](https://github.com/git/git/tags)
+   
+   Unzip the zip file based on the doc here: https://git-scm.com/book/en/v2/Appendix-A:-Git-in-Other-Environments-Git-in-Bash.
+
+   please refer to the solution mentioned here: https://stackoverflow.com/questions/28028740/git-tab-completion-in-zsh-throwing-errors in case you ran into exception:
+   ```
+   command not found __git_aliased_command
+   ```
+
    add below config to ~/.zshrc
    ```
    zstyle ':completion:*:*:git:*' script ~/git-completion.bash
+   fpath=(~/.zsh $fpath)
    autoload -Uz compinit && compinit
    ```
    After that, execute command:
    ```
    source ~/.zshrc
    ```
+   if the error mentioned above was still there, try to relaunch Terminal.
 
 2. How to config the git-prompt on Mac ZSH terminate?
    ```
@@ -58,4 +70,22 @@ https://askubuntu.com/questions/159558/change-the-device-name-in-the-details-win
    
    <img width="253" alt="image" src="https://github.com/user-attachments/assets/6d1e98d9-3c58-4aa7-b10a-5bb1c25cce80" />
 
-
+  **The complete config in ~/.zshrc should be like**:
+   ```
+   zstyle ':completion:*:*:git:*' script ~/.zsh/git-completion.bash
+   fpath=(~/.zsh $fpath)
+   #. ~/.zsh/git-prompt.sh
+   
+   autoload -Uz compinit && compinit
+   
+   function parse_git_branch() {
+     local stat=""
+     if [ -e .git/MERGE_HEAD ]; then
+       stat="|MERGING"
+     fi
+     git branch 2> /dev/null | sed -n -e 's/^\* \(.*\)/(\1'"${stat}"')/p'
+   }
+   setopt PROMPT_SUBST
+   # new line
+   export PROMPT='%F{grey}%n%f %F{cyan}%~%f %F{green}$(parse_git_branch)%f'$'\n''%F{normal}$%f '
+   ```
